@@ -23,7 +23,7 @@
   <meta name="description" content="前言Xcode的BuildSetting里，关于Architectures的选项一直都比较复杂，参数名称也很容易混淆，相信不少开发同学都有这样的感觉。日常开发或者升级Xcode的过程中，偶尔也会遇到Could not find module &#39;xxxxxxx&#39; for target &#39;arm64-apple-ios-simulator这样的问题，这种问题，基本都是Arch">
 <meta property="og:type" content="article">
 <meta property="og:title" content="整理一下脑子里混乱的Architectures">
-<meta property="og:url" content="http://example.com/2021/12/02/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/index.html">
+<meta property="og:url" content="http://example.com/2021/11/29/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/index.html">
 <meta property="og:site_name" content="T_Choues">
 <meta property="og:description" content="前言Xcode的BuildSetting里，关于Architectures的选项一直都比较复杂，参数名称也很容易混淆，相信不少开发同学都有这样的感觉。日常开发或者升级Xcode的过程中，偶尔也会遇到Could not find module &#39;xxxxxxx&#39; for target &#39;arm64-apple-ios-simulator这样的问题，这种问题，基本都是Arch">
 <meta property="og:locale" content="zh_CN">
@@ -31,13 +31,13 @@
 <meta property="og:image" content="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5b8fca80fb4c42d78a841736c9be50cb~tplv-k3u1fbpfcp-watermark.image">
 <meta property="og:image" content="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a363661ea5cf4f46bc73a4375818f498~tplv-k3u1fbpfcp-watermark.image">
 <meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/703d7a8d7c504d09811552506f53be0d~tplv-k3u1fbpfcp-watermark.image">
-<meta property="article:published_time" content="2021-12-02T08:36:04.423Z">
+<meta property="article:published_time" content="2021-11-29T08:36:23.000Z">
 <meta property="article:modified_time" content="2021-12-02T08:36:04.423Z">
 <meta property="article:author" content="T_Choues">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://gitee.com/seen-every-where/pic-bed/raw/master/while.png">
 
-<link rel="canonical" href="http://example.com/2021/12/02/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/">
+<link rel="canonical" href="http://example.com/2021/11/29/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/">
 
 
 <script id="page-configurations">
@@ -155,7 +155,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/02/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/29/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -178,8 +178,15 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-12-02 16:36:04" itemprop="dateCreated datePublished" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
+              <time title="创建时间：2021-11-29 16:36:23" itemprop="dateCreated datePublished" datetime="2021-11-29T16:36:23+08:00">2021-11-29</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-02 16:36:04" itemprop="dateModified" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
+              </span>
 
           
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
@@ -273,12 +280,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/12/02/Jenkins%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E6%9F%90%E4%B8%AA%E5%88%86%E6%94%AF%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%EF%BC%9F/" rel="prev" title="Jenkins 如何指定某个分支进行构建？">
-      <i class="fa fa-chevron-left"></i> Jenkins 如何指定某个分支进行构建？
+    <a href="/2021/10/23/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/" rel="prev" title="一次简单的iOS自动化构建尝试">
+      <i class="fa fa-chevron-left"></i> 一次简单的iOS自动化构建尝试
     </a></div>
       <div class="post-nav-item">
-    <a href="/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/" rel="next" title="一次简单的iOS自动化构建尝试">
-      一次简单的iOS自动化构建尝试 <i class="fa fa-chevron-right"></i>
+    <a href="/2021/12/01/Jenkins%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E6%9F%90%E4%B8%AA%E5%88%86%E6%94%AF%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%EF%BC%9F/" rel="next" title="Jenkins 如何指定某个分支进行构建？">
+      Jenkins 如何指定某个分支进行构建？ <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>

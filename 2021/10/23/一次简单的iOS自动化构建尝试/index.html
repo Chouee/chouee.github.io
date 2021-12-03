@@ -23,7 +23,7 @@
   <meta name="description" content="本文基于Jenkins + XcodeBuild + Fir简单实现了自动化构建的主要流程，更多的枝叶需自己慢慢完善。 之前看过使用Jenkins插件来构建的文章，所以一开始也准备用插件构建，后来才发现那些文章写得虽好，但很多配置已经过时了，所以最后使用脚本来构建。插件会失效，但脚本不会过期。 在开始之前，建议大家先建立一个能够正常archive并export的空工程。真实的工程代码量很大，多次">
 <meta property="og:type" content="article">
 <meta property="og:title" content="一次简单的iOS自动化构建尝试">
-<meta property="og:url" content="http://example.com/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/index.html">
+<meta property="og:url" content="http://example.com/2021/10/23/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/index.html">
 <meta property="og:site_name" content="T_Choues">
 <meta property="og:description" content="本文基于Jenkins + XcodeBuild + Fir简单实现了自动化构建的主要流程，更多的枝叶需自己慢慢完善。 之前看过使用Jenkins插件来构建的文章，所以一开始也准备用插件构建，后来才发现那些文章写得虽好，但很多配置已经过时了，所以最后使用脚本来构建。插件会失效，但脚本不会过期。 在开始之前，建议大家先建立一个能够正常archive并export的空工程。真实的工程代码量很大，多次">
 <meta property="og:locale" content="zh_CN">
@@ -41,13 +41,13 @@
 <meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/80e0ba7982004258ba1733ddd00cb950~tplv-k3u1fbpfcp-zoom-1.image">
 <meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ef98b3e4d91a421ab83f7572a11969c7~tplv-k3u1fbpfcp-zoom-1.image">
 <meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/125d8d84fd694ffabe5a5c26a34562b5~tplv-k3u1fbpfcp-zoom-1.image">
-<meta property="article:published_time" content="2021-12-02T08:36:04.423Z">
+<meta property="article:published_time" content="2021-10-23T13:31:43.000Z">
 <meta property="article:modified_time" content="2021-12-02T08:36:04.423Z">
 <meta property="article:author" content="T_Choues">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://gitee.com/seen-every-where/pic-bed/raw/master/Jenkins.jpg">
 
-<link rel="canonical" href="http://example.com/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/">
+<link rel="canonical" href="http://example.com/2021/10/23/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/">
 
 
 <script id="page-configurations">
@@ -165,7 +165,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/23/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -188,8 +188,15 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-12-02 16:36:04" itemprop="dateCreated datePublished" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
+              <time title="创建时间：2021-10-23 21:31:43" itemprop="dateCreated datePublished" datetime="2021-10-23T21:31:43+08:00">2021-10-23</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-02 16:36:04" itemprop="dateModified" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
+              </span>
 
           
             <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
@@ -305,10 +312,13 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2021/12/02/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/" rel="prev" title="整理一下脑子里混乱的Architectures">
-      <i class="fa fa-chevron-left"></i> 整理一下脑子里混乱的Architectures
+    <a href="/2021/10/15/%E3%80%8AiOS%E5%86%85%E5%8D%B7%E3%80%8B%E5%8D%B7%E4%B8%80%EF%BC%9A%E4%BB%8E%E6%9C%80%E7%86%9F%E6%82%89%E7%9A%84alloc%E5%92%8Cinit%E8%81%8A%E8%B5%B7/" rel="prev" title="《iOS内卷》卷一：从最熟悉的alloc和init聊起">
+      <i class="fa fa-chevron-left"></i> 《iOS内卷》卷一：从最熟悉的alloc和init聊起
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/11/29/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/" rel="next" title="整理一下脑子里混乱的Architectures">
+      整理一下脑子里混乱的Architectures <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     

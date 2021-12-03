@@ -147,7 +147,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/01/Jenkins%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E6%9F%90%E4%B8%AA%E5%88%86%E6%94%AF%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%EF%BC%9F/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
@@ -161,7 +161,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/" class="post-title-link" itemprop="url">一次简单的iOS自动化构建尝试</a>
+            <a href="/2021/12/01/Jenkins%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E6%9F%90%E4%B8%AA%E5%88%86%E6%94%AF%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%EF%BC%9F/" class="post-title-link" itemprop="url">Jenkins 如何指定某个分支进行构建？</a>
         </h2>
 
         <div class="post-meta">
@@ -171,142 +171,7 @@
               </span>
               <span class="post-meta-item-text">发表于</span>
 
-              <time title="创建时间：2021-12-02 16:36:04" itemprop="dateCreated datePublished" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><img src="https://gitee.com/seen-every-where/pic-bed/raw/master/Jenkins.jpg" alt="Jenkins.jpg"></p>
-<p>本文基于<code>Jenkins + XcodeBuild + Fir</code>简单实现了自动化构建的主要流程，更多的枝叶需自己慢慢完善。</p>
-<p>之前看过使用Jenkins插件来构建的文章，所以一开始也准备用插件构建，后来才发现那些文章写得虽好，但很多配置已经过时了，所以最后使用脚本来构建。插件会失效，但脚本不会过期。</p>
-<p>在开始之前，建议大家先建立一个能够正常<code>archive</code>并<code>export</code>的空工程。真实的工程代码量很大，多次测试构建相当耗费时间。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/02/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="T_Choues">
-      <meta itemprop="description" content="蜗牛爬得再慢，也是在往前走呀🐌">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="T_Choues">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/12/02/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/" class="post-title-link" itemprop="url">整理一下脑子里混乱的Architectures</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-12-02 16:36:04" itemprop="dateCreated datePublished" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p><img src="https://gitee.com/seen-every-where/pic-bed/raw/master/while.png" alt="while.png"></p>
-<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Xcode的<code>BuildSetting</code>里，关于Architectures的选项一直都比较复杂，参数名称也很容易混淆，相信不少开发同学都有这样的感觉。日常开发或者升级Xcode的过程中，偶尔也会遇到<code>Could not find module &#39;xxxxxxx&#39; for target &#39;arm64-apple-ios-simulator</code>这样的问题，这种问题，基本都是Architectures配置不当导致的。</p>
-<p>所以，这篇文章将对Architecture参数进行逐一整理，避免类似问题再次困扰我们。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2021/12/02/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/02/Jenkins%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E6%9F%90%E4%B8%AA%E5%88%86%E6%94%AF%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%EF%BC%9F/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="T_Choues">
-      <meta itemprop="description" content="蜗牛爬得再慢，也是在往前走呀🐌">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="T_Choues">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2021/12/02/Jenkins%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E6%9F%90%E4%B8%AA%E5%88%86%E6%94%AF%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%EF%BC%9F/" class="post-title-link" itemprop="url">Jenkins 如何指定某个分支进行构建？</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2021-12-02 16:36:04" itemprop="dateCreated datePublished" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
+              <time title="创建时间：2021-12-01 14:15:06" itemprop="dateCreated datePublished" datetime="2021-12-01T14:15:06+08:00">2021-12-01</time>
             </span>
               <span class="post-meta-item">
                 <span class="post-meta-item-icon">
@@ -332,7 +197,156 @@
 <p>我们使用Jenkins构建的过程中，肯定会遇到这样的问题：<strong>云端的项目有多个版本，如何指定需要构建哪个版本呢</strong>？第一想法是尝试新建多个Jenkins项目，这确实也能解决问题，但不够优雅。我们可以使用<strong>参数化构建</strong>，优雅的解决这个问题。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2021/12/02/Jenkins%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E6%9F%90%E4%B8%AA%E5%88%86%E6%94%AF%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%EF%BC%9F/#more" rel="contents">
+              <a class="btn" href="/2021/12/01/Jenkins%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E6%9F%90%E4%B8%AA%E5%88%86%E6%94%AF%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%EF%BC%9F/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/11/29/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="T_Choues">
+      <meta itemprop="description" content="蜗牛爬得再慢，也是在往前走呀🐌">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="T_Choues">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/11/29/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/" class="post-title-link" itemprop="url">整理一下脑子里混乱的Architectures</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-11-29 16:36:23" itemprop="dateCreated datePublished" datetime="2021-11-29T16:36:23+08:00">2021-11-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-02 16:36:04" itemprop="dateModified" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><img src="https://gitee.com/seen-every-where/pic-bed/raw/master/while.png" alt="while.png"></p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>Xcode的<code>BuildSetting</code>里，关于Architectures的选项一直都比较复杂，参数名称也很容易混淆，相信不少开发同学都有这样的感觉。日常开发或者升级Xcode的过程中，偶尔也会遇到<code>Could not find module &#39;xxxxxxx&#39; for target &#39;arm64-apple-ios-simulator</code>这样的问题，这种问题，基本都是Architectures配置不当导致的。</p>
+<p>所以，这篇文章将对Architecture参数进行逐一整理，避免类似问题再次困扰我们。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/11/29/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/23/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="T_Choues">
+      <meta itemprop="description" content="蜗牛爬得再慢，也是在往前走呀🐌">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="T_Choues">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/10/23/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/" class="post-title-link" itemprop="url">一次简单的iOS自动化构建尝试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-23 21:31:43" itemprop="dateCreated datePublished" datetime="2021-10-23T21:31:43+08:00">2021-10-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-02 16:36:04" itemprop="dateModified" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p><img src="https://gitee.com/seen-every-where/pic-bed/raw/master/Jenkins.jpg" alt="Jenkins.jpg"></p>
+<p>本文基于<code>Jenkins + XcodeBuild + Fir</code>简单实现了自动化构建的主要流程，更多的枝叶需自己慢慢完善。</p>
+<p>之前看过使用Jenkins插件来构建的文章，所以一开始也准备用插件构建，后来才发现那些文章写得虽好，但很多配置已经过时了，所以最后使用脚本来构建。插件会失效，但脚本不会过期。</p>
+<p>在开始之前，建议大家先建立一个能够正常<code>archive</code>并<code>export</code>的空工程。真实的工程代码量很大，多次测试构建相当耗费时间。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2021/10/23/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
