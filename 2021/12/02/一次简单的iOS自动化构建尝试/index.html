@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="本文基于Jenkins + XcodeBuild + Fir简单实现了自动化构建的主要流程，更多的枝叶需自己慢慢完善。 之前看过使用Jenkins插件来构建的文章，所以一开始也准备用插件构建，后来才发现那些文章写得虽好，但很多配置已经过时了，所以最后使用脚本来构建。插件会失效，但脚本不会过期。 在开始之前，建议大家先建立一个能够正常archive并export的空工程。真实的工程代码量很大，多次">
+<meta property="og:type" content="article">
+<meta property="og:title" content="一次简单的iOS自动化构建尝试">
+<meta property="og:url" content="http://example.com/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/index.html">
+<meta property="og:site_name" content="T_Choues">
+<meta property="og:description" content="本文基于Jenkins + XcodeBuild + Fir简单实现了自动化构建的主要流程，更多的枝叶需自己慢慢完善。 之前看过使用Jenkins插件来构建的文章，所以一开始也准备用插件构建，后来才发现那些文章写得虽好，但很多配置已经过时了，所以最后使用脚本来构建。插件会失效，但脚本不会过期。 在开始之前，建议大家先建立一个能够正常archive并export的空工程。真实的工程代码量很大，多次">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/seen-every-where/pic-bed/raw/master/Jenkins.jpg">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2521e74cf2374630a859cc05e9c5e627~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/06a2a35dc4a04c2f92da7793cea62425~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/583f24d571294b53a79297020379fce4~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cd76c1cbd1804addb0c7299477a5f16b~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0d0b34378eb54e34ab14df98cf3542f9~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9d03c6a656834457a560b7e0ded8e520~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6e8e1834268848a8a989535b264edf85~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/485522a0c56c46b38c30f056afa06926~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5d8bdd7094cb484ea12c1deb9408f66e~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c6efe30a118e4af1843dafd3c2dfce48~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/80e0ba7982004258ba1733ddd00cb950~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ef98b3e4d91a421ab83f7572a11969c7~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/125d8d84fd694ffabe5a5c26a34562b5~tplv-k3u1fbpfcp-zoom-1.image">
+<meta property="article:published_time" content="2021-12-02T08:36:04.423Z">
+<meta property="article:modified_time" content="2021-12-02T08:36:04.423Z">
+<meta property="article:author" content="T_Choues">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/seen-every-where/pic-bed/raw/master/Jenkins.jpg">
+
+<link rel="canonical" href="http://example.com/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>一次简单的iOS自动化构建尝试 | T_Choues</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">T_Choues</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/12/02/%E4%B8%80%E6%AC%A1%E7%AE%80%E5%8D%95%E7%9A%84iOS%E8%87%AA%E5%8A%A8%E5%8C%96%E6%9E%84%E5%BB%BA%E5%B0%9D%E8%AF%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="T_Choues">
+      <meta itemprop="description" content="蜗牛爬得再慢，也是在往前走呀🐌">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="T_Choues">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          一次简单的iOS自动化构建尝试
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-12-02 16:36:04" itemprop="dateCreated datePublished" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
+            </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="https://gitee.com/seen-every-where/pic-bed/raw/master/Jenkins.jpg" alt="Jenkins.jpg"></p>
+<p>本文基于<code>Jenkins + XcodeBuild + Fir</code>简单实现了自动化构建的主要流程，更多的枝叶需自己慢慢完善。</p>
+<p>之前看过使用Jenkins插件来构建的文章，所以一开始也准备用插件构建，后来才发现那些文章写得虽好，但很多配置已经过时了，所以最后使用脚本来构建。插件会失效，但脚本不会过期。</p>
+<p>在开始之前，建议大家先建立一个能够正常<code>archive</code>并<code>export</code>的空工程。真实的工程代码量很大，多次测试构建相当耗费时间。</p>
+<span id="more"></span>
+
+<h2 id="一、下载安装Jenkins"><a href="#一、下载安装Jenkins" class="headerlink" title="一、下载安装Jenkins"></a>一、下载安装Jenkins</h2><p>Jenkins是基于Java环境的，所以电脑上必须先配置<a target="_blank" rel="noopener" href="https://www.oracle.com/java/technologies/downloads/#java8-mac">Java环境</a>，然后去Jenkins官网（<a target="_blank" rel="noopener" href="https://jenkins.io/">https://jenkins.io/</a>）下载安装Jenkins。<br><br>安装完成后会自动打开<a target="_blank" rel="noopener" href="http://localhost:8080/">http://localhost:8080</a>，如果没有自动打开可以手动打开。打开后如出现找不到服务器的情况，可以尝试打开<a target="_blank" rel="noopener" href="http://127.0.0.1:8080/">http://127.0.0.1:8080</a>，两者是一样的。<br></p>
+<p>有些教程还有添加<code>Xcode integration 、Keychains and Provisioning Profiles Plugin</code>之类插件的步骤，我们不需要。因为我们是用xcode脚本构建，所以不需要安装任何插件。</p>
+<h2 id="二、构建任务的建立"><a href="#二、构建任务的建立" class="headerlink" title="二、构建任务的建立"></a>二、构建任务的建立</h2><h3 id="新建任务"><a href="#新建任务" class="headerlink" title="新建任务"></a>新建任务</h3><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2521e74cf2374630a859cc05e9c5e627~tplv-k3u1fbpfcp-zoom-1.image" alt="image.png"></p>
+<h3 id="构建一个自由风格的软件项目"><a href="#构建一个自由风格的软件项目" class="headerlink" title="构建一个自由风格的软件项目"></a>构建一个自由风格的软件项目</h3><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/06a2a35dc4a04c2f92da7793cea62425~tplv-k3u1fbpfcp-zoom-1.image" alt="image.png"></p>
+<h3 id="填写工程相关介绍"><a href="#填写工程相关介绍" class="headerlink" title="填写工程相关介绍"></a>填写工程相关介绍</h3><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/583f24d571294b53a79297020379fce4~tplv-k3u1fbpfcp-zoom-1.image" alt="image.png"></p>
+<h2 id="三、源码管理"><a href="#三、源码管理" class="headerlink" title="三、源码管理"></a>三、源码管理</h2><h3 id="Git配置"><a href="#Git配置" class="headerlink" title="Git配置"></a>Git配置</h3><p>如果选择SSH登录，在进行下图操作之前，要先去配置一下SSH key。<br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cd76c1cbd1804addb0c7299477a5f16b~tplv-k3u1fbpfcp-zoom-1.image" alt="源码管理"></p>
+<h3 id="配置SSH登录"><a href="#配置SSH登录" class="headerlink" title="配置SSH登录"></a>配置SSH登录</h3><p>在<code>Jenkins &gt; 凭据 &gt; 系统 &gt; 全局凭据</code>位置下配置SSH登录需要的key。<strong>这里需要特别注意</strong>，填写的key是私钥<code>id_rsa</code>，而不是公钥<code>id_rsa.pub</code>。<br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0d0b34378eb54e34ab14df98cf3542f9~tplv-k3u1fbpfcp-zoom-1.image" alt="配置SSH登录"></p>
+<h2 id="四、构建过程"><a href="#四、构建过程" class="headerlink" title="四、构建过程"></a>四、构建过程</h2><p>重点来了。<br>点击“添加构建步骤”，选择<code>Execute shell</code>。</p>
+<h3 id="进入工程目录"><a href="#进入工程目录" class="headerlink" title="进入工程目录"></a>进入工程目录</h3><p>进入目录后，根据自己项目实际情况，决定要不要<code>pod install</code><br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9d03c6a656834457a560b7e0ded8e520~tplv-k3u1fbpfcp-zoom-1.image" alt="构建步骤一"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#bin/bsah - l</span><br><span class="line">export LANG=en_US.UTF-8</span><br><span class="line">export LANGUAGE=en_US.UTF-8</span><br><span class="line">export LC_ALL=en_US.UTF-8</span><br><span class="line">cd $WORKSPACE/Test  #进入工程目录</span><br><span class="line">/usr/local/bin/pod install  #这里根据自己实际情况，决定要不要pod install</span><br></pre></td></tr></table></figure>
+
+<h3 id="执行打包操作"><a href="#执行打包操作" class="headerlink" title="执行打包操作"></a>执行打包操作</h3><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6e8e1834268848a8a989535b264edf85~tplv-k3u1fbpfcp-zoom-1.image" alt="image.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">#clean</span><br><span class="line">xcodebuild clean -workspace Test.xcworkspace \</span><br><span class="line">				 -scheme Test \</span><br><span class="line"></span><br><span class="line">#archive</span><br><span class="line">xcodebuild archive -workspace Test.xcworkspace \</span><br><span class="line">				   -scheme Test \</span><br><span class="line">                   -archivePath &quot;$WORKSPACE/Test.xcarchive&quot; \</span><br><span class="line">                   -configuration Debug \</span><br><span class="line"></span><br><span class="line">#export</span><br><span class="line">xcodebuild -exportArchive -archivePath &quot;$WORKSPACE/Test.xcarchive&quot; \</span><br><span class="line">						  -exportPath &quot;$WORKSPACE/Export/Test&quot; \</span><br><span class="line">                          -exportOptionsPlist &quot;$WORKSPACE/ExportOptions.plist&quot; \</span><br><span class="line">                          -configuration Debug \</span><br></pre></td></tr></table></figure>
+
+
+<p>说明：<br><br><code>-archivePath</code>：.xcarchive文件的存放路径。<br><br><code>-exportPath</code>：导出文件的路径。Export文件夹是自己建的。<br><br><code>-ExportOptions.plist</code>：这个文件的内容其实是ipa的打包信息。手动<code>archive</code>并<code>export</code>时，这个文件就包含在最终输出的文件夹内，可以copy一份出来使用。<br><br><code>-configuration</code> ：默认<code>Debug</code>或<code>Release</code>。<br></p>
+<p><strong>这里有个坑要说明一下。<code>archive</code>和ipa文件的导出目录最好位于Jenkins下的那个工程中，我之前选择的是导出到桌面，结果一直报读写权限的问题。</strong></p>
+<h2 id="五、上传ipa包到Fir"><a href="#五、上传ipa包到Fir" class="headerlink" title="五、上传ipa包到Fir"></a>五、上传ipa包到Fir</h2><p><img src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/485522a0c56c46b38c30f056afa06926~tplv-k3u1fbpfcp-watermark.image" alt="image.png"></p>
+<p>要实现自动上传到fir，要先安装<a target="_blank" rel="noopener" href="https://github.com/FIRHQ/fir-cli">fir-cli</a><br></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">rvm list   	        # 确保 rvm 正确安装, 如果直接通过系统安装ruby, 可以注释此行</span><br><span class="line">ruby -v  	        # 查看 ruby 的版本, 请确保大于 2.4.0</span><br><span class="line">gem install fir-cli  	# 现场安装fir-cli , 如果安装过, 则会略过</span><br><span class="line">fir -v  		# 查看 fir-cli 的版本</span><br></pre></td></tr></table></figure>
+
+<p>成功安装之后，添加下面这个脚本：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#!/bin/bash --login</span><br><span class="line">fir publish &quot;$WORKSPACE/Export/Test/Test.ipa&quot; -T &quot;61a07dbfe4a4dc862f******b71e7c93&quot;</span><br></pre></td></tr></table></figure>
+
+
+<p><code>61a07dbfe4a4dc862f******b71e7c93</code>：Fir的<code>API token</code></p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5d8bdd7094cb484ea12c1deb9408f66e~tplv-k3u1fbpfcp-zoom-1.image" alt="image.png"></p>
+<p>若上传过程出现：<code>command not found</code>：<br><br>1、控制台执行 <code>echo $PATH </code>，复制输出内容。<br><br>2、jenkins-&gt;系统管理-&gt;系统设置。<br><br>3、勾选<code>Environment variables</code>，添加键值。键：<code>PATH</code>，值：刚才复制的内容。<br><br><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c6efe30a118e4af1843dafd3c2dfce48~tplv-k3u1fbpfcp-zoom-1.image" alt="image.png"></p>
+<h2 id="六、配置自动触发器"><a href="#六、配置自动触发器" class="headerlink" title="六、配置自动触发器"></a>六、配置自动触发器</h2><p>Jenkins在自动化构建的过程中，更多的是充当监察者的作用。一旦监察到仓库中的内容有任何变化，就自动触发构建打包。<br>自动触发构建可参考这篇文章：<a target="_blank" rel="noopener" href="https://blog.csdn.net/zzy1078689276/article/details/77520441">Jenkins之定时构建</a></p>
+<p>至此，Jenkins+xcodebuild+fir环境搭建完成。</p>
+<h2 id="七、错误记录"><a href="#七、错误记录" class="headerlink" title="七、错误记录"></a>七、错误记录</h2><p><strong>1、Code Signing Error: No profile for team ‘XXX’ matching ‘XXX’ found:</strong></p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/80e0ba7982004258ba1733ddd00cb950~tplv-k3u1fbpfcp-zoom-1.image" alt="bug1.png"><br>原因：<br><br>缺少描述文件。<br></p>
+<p>解决方法：<br><br><code>硬盘/Users/Shared/Jenkins/Library/MobileDevice/Provisioning Profiles</code>路径下添加所需的描述文件。推荐使用Xcode自动管理描述文件的方式，避免出现此类问题。</p>
+<p><strong>2、XXX.m normal armv7 objective-c com.apple.compilers.llvm.clang.1_0.compiler</strong></p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ef98b3e4d91a421ab83f7572a11969c7~tplv-k3u1fbpfcp-zoom-1.image" alt="bug2.png"><br>原因：<br><br>编辑该.o文件时出错。<br></p>
+<p>解决方法：<br><br>我的情况是，在A电脑写代码，在B机器Jenkins打包，A、B两机器的pod版本不一致，导致pod下来的第三方代码也不一致，编译时自然会出错。AB两电脑<code>pod update</code>一下，保持版本一致，重新提交代码即可。</p>
+<p><strong>3、error: exportArchive: No certificate for team ‘XXX’ matching ‘XXX’ found. Specify a different signing certificate for “signingCertificate” in your Export Options property list</strong></p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/125d8d84fd694ffabe5a5c26a34562b5~tplv-k3u1fbpfcp-zoom-1.image" alt="bug3.png"><br>原因：<br><br><code>exportArchive</code>时证书和描述文件对应不上。<br></p>
+<p>解决方法：<br><br>我使用的ExportOptions.plist是<code>Release</code>模式生成的，但是Jenkins <code>exprortArchive</code>时选择的是<code>Debug</code>模式。模式不一致，证书和描述文件自然对应不上。</p>
+<p><strong>4、Jenkins打包时提示Multiple commands produce…，但真机测试没问题</strong></p>
+<p>原因：<br><br>Jenkins打包时默认使用的是<code>New build system</code>，而不管你Xcode里是如何设置的。<br></p>
+<p>解决方法：<br><br>archive时添加xcodebuild指令<code>-UseModernBuildSystem=NO</code>，指定不使用当前的编译系统。<br></p>
+<p><strong>5、git clone 报错 Permission denied (publickey,password).git配置ssh key</strong></p>
+<p>原因：<br><br>Jenkins配置ssh登录时，需要拷贝私钥，而不是公钥<br></p>
+<p><strong>6、jenkins env: ruby_executable_hooks: No such file or directory</strong></p>
+<p>原因：<br><br>需要安装executable-hooks<br></p>
+<p>解决方法：<br><br><code>sudo gem install --user-install executable-hooks</code><br>安装过程中，要留意异常。有可能报path相关的错误，导致某些程序不能执行。此时参照提示，使用vim打开bash_profile文件，把需要的path写进去，然后重新执行命令。安装完成之后，再删掉刚才的path。一定要记得删除，否则后面使用Jenkins构建时会报很多诸如<code>command not found</code>之类的错误。</p>
+<p><strong>7、Jenkins requires Java versions [8, 11] but you are running with Java 13 from…</strong></p>
+<p>原因：<br><br>本地Java版本不适合，需要安装jdk8或jdk11<br></p>
+<p><strong>8、Failed to connect to raw.githubusercontent.com port 443: Connection refused…</strong></p>
+<p>原因：<br><br>出现这个错误一般是被墙的原因。可以尝试设置DNS为114.114.114.114或者8.8.8.8<br></p>
+<p><strong>9、xcodebuild: error: The workspace named “XXX” does not contain a scheme named “XXX”. The “-list” option can be used to find the names of the schemes in the workspace.</strong></p>
+<p>解决方法：<br><br>1、工程的scheme和构建脚本的scheme对应不上。例如本次构建，脚本的scheme是AAA，但实际上工程的scheme是BBB。<br><br>2、或者：Choose Scheme &gt; Manage Schemes (from the Product Menu).<br>Ensure the ‘Shared’ box is checked for that scheme。打开Shared选项。这个是别人遇到的情况并提供的答案。<br></p>
+<p><strong>10、Failed to build gem native extension</strong></p>
+<p>解决方法：<br><br>Mac OS某些版本，有个pkg需要手动安装。<br><code>open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg</code></p>
+<p><strong>11、double check问题</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Jenkins detected that you appear to be running more than one instance of Jenkins that share the same home directory &#x27;/data/jenkins/home’. This greatly confuses Jenkins and you will likely experience strange behaviors, so please correct the situation.</span><br><span class="line">This Jenkins:    723777919 contextPath=&quot;&quot; at 25@MYLINUX</span><br><span class="line">Other Jenkins:    47707180 contextPath=&quot;/jenkins&quot; at 25@MYLINUX</span><br></pre></td></tr></table></figure>
+<p>原因：<br><br>Jenkins启动之后，会在home目录下生成.owner文件。里面标识了本次Jenkins实例的唯一标识。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">47707180 contextPath=&quot;/jenkins&quot; at 25@MYLINUX</span><br></pre></td></tr></table></figure>
+<p>解决方法：<br></p>
+<ol>
+<li>直接选择忽略<br></li>
+<li>然后删除.owner文件，再退出登录<br></li>
+<li>重新登录。它会重新生成.owner文件<br></li>
+</ol>
+<p><strong>12、可以通过localhost:8080访问，但是无法通过ip访问，例如：172.21.18.83:8080</strong></p>
+<p>解决方法：<br><br>Jenkins默认只会监听127.0.0.1的请求，我们需要修改httpListenAddress为0.0.0.0，监听所有ip的请求。<br></p>
+<ol>
+<li>打开对应路径，修改httpListenAddress的值<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">~/Library/LaunchAgents/homebrew.mxcl.jenkins.plist</span><br><span class="line">/usr/local/Cellar/jenkins/版本号/homebrew.mxcl.jenkins.plist</span><br></pre></td></tr></table></figure></li>
+<li>关闭并重新开启Jenkins<br><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">brew services stop jenkins</span><br><span class="line">brew services start jenkins</span><br></pre></td></tr></table></figure>
+注意：不能使用<code>brew services restart jenkins</code>。这个指令会重置配置，导致我们刚才的自定义配置失效。<br></li>
+</ol>
+<p><strong>13、提交ipa包时，validate和update到connect都提示成功，但是在connect上就是看不到构建版本</strong>  </p>
+<p>原因：我的情况是，<code>ExportOptions.plist</code>使用错了。我使用的是<code>Ad-Hoc</code>环境的，而不是<code>AppStore</code>环境。</p>
+<h2 id="八、参考资料"><a href="#八、参考资料" class="headerlink" title="八、参考资料"></a>八、参考资料</h2><p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/technotes/tn2339/_index.html">Building from the Command Line with Xcode</a><br><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/51205221/how-can-i-use-the-legacy-build-system-with-xcode-10s-xcodebuild/51205222#51205222">How can I use the legacy build system with Xcode 10’s xcodebuild？</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/zzy1078689276/article/details/77520441">Jenkins之定时构建</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/12/02/%E6%95%B4%E7%90%86%E4%B8%80%E4%B8%8B%E8%84%91%E5%AD%90%E9%87%8C%E6%B7%B7%E4%B9%B1%E7%9A%84Architectures/" rel="prev" title="整理一下脑子里混乱的Architectures">
+      <i class="fa fa-chevron-left"></i> 整理一下脑子里混乱的Architectures
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%B8%8B%E8%BD%BD%E5%AE%89%E8%A3%85Jenkins"><span class="nav-text">一、下载安装Jenkins</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%9E%84%E5%BB%BA%E4%BB%BB%E5%8A%A1%E7%9A%84%E5%BB%BA%E7%AB%8B"><span class="nav-text">二、构建任务的建立</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B0%E5%BB%BA%E4%BB%BB%E5%8A%A1"><span class="nav-text">新建任务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9E%84%E5%BB%BA%E4%B8%80%E4%B8%AA%E8%87%AA%E7%94%B1%E9%A3%8E%E6%A0%BC%E7%9A%84%E8%BD%AF%E4%BB%B6%E9%A1%B9%E7%9B%AE"><span class="nav-text">构建一个自由风格的软件项目</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A1%AB%E5%86%99%E5%B7%A5%E7%A8%8B%E7%9B%B8%E5%85%B3%E4%BB%8B%E7%BB%8D"><span class="nav-text">填写工程相关介绍</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%BA%90%E7%A0%81%E7%AE%A1%E7%90%86"><span class="nav-text">三、源码管理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Git%E9%85%8D%E7%BD%AE"><span class="nav-text">Git配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%85%8D%E7%BD%AESSH%E7%99%BB%E5%BD%95"><span class="nav-text">配置SSH登录</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%9E%84%E5%BB%BA%E8%BF%87%E7%A8%8B"><span class="nav-text">四、构建过程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%9B%E5%85%A5%E5%B7%A5%E7%A8%8B%E7%9B%AE%E5%BD%95"><span class="nav-text">进入工程目录</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E6%89%93%E5%8C%85%E6%93%8D%E4%BD%9C"><span class="nav-text">执行打包操作</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E4%B8%8A%E4%BC%A0ipa%E5%8C%85%E5%88%B0Fir"><span class="nav-text">五、上传ipa包到Fir</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E9%85%8D%E7%BD%AE%E8%87%AA%E5%8A%A8%E8%A7%A6%E5%8F%91%E5%99%A8"><span class="nav-text">六、配置自动触发器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E9%94%99%E8%AF%AF%E8%AE%B0%E5%BD%95"><span class="nav-text">七、错误记录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-text">八、参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="T_Choues"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">T_Choues</p>
+  <div class="site-description" itemprop="description">蜗牛爬得再慢，也是在往前走呀🐌</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">T_Choues</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <span id="busuanzi_container_site_pv">总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+    <span class="post-meta-divider">|</span>
+    <span id="busuanzi_container_site_uv">总访客数<span id="busuanzi_value_site_uv"></span>人</span>
+    <span class="post-meta-divider">|</span>
+<!-- 不蒜子计数初始值纠正 -->
+<script>
+$(document).ready(function() {
+
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var countOffset = 20000;  // 初始化首次数据
+
+    function fixCount() {            
+       if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + countOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_pv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + countOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});
+</script> 
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

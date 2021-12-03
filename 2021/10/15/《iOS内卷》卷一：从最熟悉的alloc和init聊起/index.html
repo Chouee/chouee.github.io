@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="一、从最熟悉的代码入手iOS开发者接触的第一行代码，除了NSLog(@&quot;Hello workd!&quot;)外，大概就是[[NSObject alloc] init]了，这应该是我们最熟悉的代码。但是，对于alloc init，你真的够熟悉吗？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《iOS内卷》卷一：从最熟悉的alloc和init聊起">
+<meta property="og:url" content="http://example.com/2021/10/15/%E3%80%8AiOS%E5%86%85%E5%8D%B7%E3%80%8B%E5%8D%B7%E4%B8%80%EF%BC%9A%E4%BB%8E%E6%9C%80%E7%86%9F%E6%82%89%E7%9A%84alloc%E5%92%8Cinit%E8%81%8A%E8%B5%B7/index.html">
+<meta property="og:site_name" content="T_Choues">
+<meta property="og:description" content="一、从最熟悉的代码入手iOS开发者接触的第一行代码，除了NSLog(@&quot;Hello workd!&quot;)外，大概就是[[NSObject alloc] init]了，这应该是我们最熟悉的代码。但是，对于alloc init，你真的够熟悉吗？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://gitee.com/seen-every-where/pic-bed/raw/master/while.png">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6696024dcb7f4a3cb4f1b33524539095~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3de761533d834d7bac1fb91754804ef0~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6f1d1f5eef624c5b99e60e83d95213ce~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9b6ee22b3e774663a2d5a79059da5c77~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/da2ec55a5e1f47e4be9693c0a604e4d7~tplv-k3u1fbpfcp-watermark.image">
+<meta property="og:image" content="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bde7fb84532040daa93254f174c8f9a2~tplv-k3u1fbpfcp-watermark.image">
+<meta property="article:published_time" content="2021-10-15T12:26:05.000Z">
+<meta property="article:modified_time" content="2021-12-02T08:36:04.423Z">
+<meta property="article:author" content="T_Choues">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://gitee.com/seen-every-where/pic-bed/raw/master/while.png">
+
+<link rel="canonical" href="http://example.com/2021/10/15/%E3%80%8AiOS%E5%86%85%E5%8D%B7%E3%80%8B%E5%8D%B7%E4%B8%80%EF%BC%9A%E4%BB%8E%E6%9C%80%E7%86%9F%E6%82%89%E7%9A%84alloc%E5%92%8Cinit%E8%81%8A%E8%B5%B7/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>《iOS内卷》卷一：从最熟悉的alloc和init聊起 | T_Choues</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">T_Choues</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/10/15/%E3%80%8AiOS%E5%86%85%E5%8D%B7%E3%80%8B%E5%8D%B7%E4%B8%80%EF%BC%9A%E4%BB%8E%E6%9C%80%E7%86%9F%E6%82%89%E7%9A%84alloc%E5%92%8Cinit%E8%81%8A%E8%B5%B7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="T_Choues">
+      <meta itemprop="description" content="蜗牛爬得再慢，也是在往前走呀🐌">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="T_Choues">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          《iOS内卷》卷一：从最熟悉的alloc和init聊起
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2021-10-15 20:26:05" itemprop="dateCreated datePublished" datetime="2021-10-15T20:26:05+08:00">2021-10-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2021-12-02 16:36:04" itemprop="dateModified" datetime="2021-12-02T16:36:04+08:00">2021-12-02</time>
+              </span>
+
+          
+            <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv" style="display: none;">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span id="busuanzi_value_page_pv"></span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><img src="https://gitee.com/seen-every-where/pic-bed/raw/master/while.png" alt=".png"></p>
+<h2 id="一、从最熟悉的代码入手"><a href="#一、从最熟悉的代码入手" class="headerlink" title="一、从最熟悉的代码入手"></a>一、从最熟悉的代码入手</h2><p>iOS开发者接触的第一行代码，除了<code>NSLog(@&quot;Hello workd!&quot;)</code>外，大概就是<code>[[NSObject alloc] init]</code>了，这应该是我们最熟悉的代码。但是，对于<code>alloc init</code>，你真的够熟悉吗？  </p>
+<span id="more"></span>
+
+<p>思考以下代码的输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Person *p1 = [Person alloc] init];</span><br><span class="line">Person *p2 = [p1 init];</span><br><span class="line">Person *p3 = [p1 init];</span><br><span class="line"></span><br><span class="line">NSLog(@&quot;%@-%p-%p&quot;, p1, p1, &amp;p1);</span><br><span class="line">NSLog(@&quot;%@-%p-%p&quot;, p2, p2, &amp;p2);</span><br><span class="line">NSLog(@&quot;%@-%p-%p&quot;, p3, p3, &amp;p3);</span><br></pre></td></tr></table></figure>
+
+<p>控制台输出：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;Person: 0x6000003000f0&gt; - 0x6000003000f0 - 0x7ffeee282028</span><br><span class="line">&lt;Person: 0x6000003000f0&gt; - 0x6000003000f0 - 0x7ffeee282020</span><br><span class="line">&lt;Person: 0x6000003000f0&gt; - 0x6000003000f0 - 0x7ffeee282018</span><br></pre></td></tr></table></figure>
+<p>看完输出是不是觉得<code>[[NSObject alloc] init]</code>没那么熟悉了？<br>为什么p1、p2、p3的值是一样的？<code>init</code>咋看起来没啥卵用？<code>alloc</code>和<code>init</code>到底做了什么？<br>按住Control键，想要查看<code>alloc</code>源码，却发现啥也没有，该如何解决？</p>
+<p>带着以上问题，我们开始今天的探索之旅。</p>
+<h2 id="二、探索的三种思路"><a href="#二、探索的三种思路" class="headerlink" title="二、探索的三种思路"></a>二、探索的三种思路</h2><h3 id="符号断点调试"><a href="#符号断点调试" class="headerlink" title="符号断点调试"></a>符号断点调试</h3><p>在哪里打断点？断点符号有哪些？<br>既然我们不知道要将断点打到哪，我们将先对已知的<code>alloc</code>打一个断点，断点类型选择<code>Symbolic Breakpoint</code>。</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6696024dcb7f4a3cb4f1b33524539095~tplv-k3u1fbpfcp-watermark.image" alt="image.png"></p>
+<p>在断点处按住<code>control</code> + <code>step into</code>，你会发现最后来到了这个地方：</p>
+<p><img src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3de761533d834d7bac1fb91754804ef0~tplv-k3u1fbpfcp-watermark.image" alt="image.png"></p>
+<p><code>objc_alloc</code>就是我们需要下的另一个断点。</p>
+<p>循环上述步骤，把过程中出现的函数，都打上符号断点，就可以继续探索。</p>
+<h3 id="汇编跟踪"><a href="#汇编跟踪" class="headerlink" title="汇编跟踪"></a>汇编跟踪</h3><p>汇编跟踪是最直观的方式。虽然有些晦涩难懂，但是关键方法的调用都可以看到。<br>在<code>[Person alloc] init];</code>处打上普通断点，然后勾选<code>Debug -&gt; Debug Workflow -&gt; Always Show Disassembly</code>：</p>
+<p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6f1d1f5eef624c5b99e60e83d95213ce~tplv-k3u1fbpfcp-watermark.image" alt="image.png"></p>
+<p>可以看到<code>objc_alloc</code>是下一个要执行的函数。</p>
+<h3 id="运行源码"><a href="#运行源码" class="headerlink" title="运行源码"></a>运行源码</h3><p>无论是符号断点调试，还是汇编跟踪，调试起来其实都相当麻烦，所以有没有更好的方法？<br>很多开发者以为苹果是闭源的，但实际上，苹果已逐渐将部分<a target="_blank" rel="noopener" href="https://opensource.apple.com/tarballs/">源码</a>开放出来。</p>
+<p>我们需要的是<code>Objc4</code>的源码：</p>
+<p><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9b6ee22b3e774663a2d5a79059da5c77~tplv-k3u1fbpfcp-watermark.image" alt="image.png"></p>
+<p>GitHub上有可以直接运行的版本：<a target="_blank" rel="noopener" href="https://github.com/LGCooci/objc4_debug">Objc4</a></p>
+<p>通过运行源码，跟踪调用流程，我们完全摆脱意淫式的底层探索。</p>
+<h2 id="三、alloc的主线调用流程"><a href="#三、alloc的主线调用流程" class="headerlink" title="三、alloc的主线调用流程"></a>三、alloc的主线调用流程</h2><p><img src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/da2ec55a5e1f47e4be9693c0a604e4d7~tplv-k3u1fbpfcp-watermark.image" alt="image.png"></p>
+<p>从<code>alloc</code>的调用开始，我们可以在源码中大概找到这些核心方法：<br>1、<code>alloc</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+ (id)alloc &#123;</span><br><span class="line">    return _objc_rootAlloc(self);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>2、<code>_objc_rootAlloc</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">id _objc_rootAlloc(Class cls)</span><br><span class="line">&#123;</span><br><span class="line">    return callAlloc(cls, false/*checkNil*/, true/*allocWithZone*/);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>3、<code>callAlloc</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">static ALWAYS_INLINE id</span><br><span class="line">callAlloc(Class cls, bool checkNil, bool allocWithZone=false)</span><br><span class="line">&#123;</span><br><span class="line">#if __OBJC2__</span><br><span class="line">    if (slowpath(checkNil &amp;&amp; !cls)) return nil;</span><br><span class="line">    if (fastpath(!cls-&gt;ISA()-&gt;hasCustomAWZ())) &#123;</span><br><span class="line">        return _objc_rootAllocWithZone(cls, nil);</span><br><span class="line">    &#125;</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    // No shortcuts available.</span><br><span class="line">    if (allocWithZone) &#123;</span><br><span class="line">        return ((id(*)(id, SEL, struct _NSZone *))objc_msgSend)(cls, @selector(allocWithZone:), nil);</span><br><span class="line">    &#125;</span><br><span class="line">    return ((id(*)(id, SEL))objc_msgSend)(cls, @selector(alloc));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>4、<code>_objc_rootAllocWithZone</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">NEVER_INLINE</span><br><span class="line">id _objc_rootAllocWithZone(Class cls, malloc_zone_t *zone __unused)</span><br><span class="line">&#123;</span><br><span class="line">    // allocWithZone under __OBJC2__ ignores the zone parameter</span><br><span class="line">    return _class_createInstanceFromZone(cls, 0, nil,</span><br><span class="line">                                         OBJECT_CONSTRUCT_CALL_BADALLOC);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>5、<code>_class_createInstanceFromZone</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">static ALWAYS_INLINE id</span><br><span class="line">_class_createInstanceFromZone(Class cls, size_t extraBytes, void *zone,</span><br><span class="line">                              int construct_flags = OBJECT_CONSTRUCT_NONE,</span><br><span class="line">                              bool cxxConstruct = true,</span><br><span class="line">                              size_t *outAllocatedSize = nil)</span><br><span class="line">&#123;</span><br><span class="line">    ASSERT(cls-&gt;isRealized());</span><br><span class="line"></span><br><span class="line">    // Read class&#x27;s info bits all at once for performance</span><br><span class="line">    bool hasCxxCtor = cxxConstruct &amp;&amp; cls-&gt;hasCxxCtor();</span><br><span class="line">    bool hasCxxDtor = cls-&gt;hasCxxDtor();</span><br><span class="line">    bool fast = cls-&gt;canAllocNonpointer();</span><br><span class="line">    size_t size;</span><br><span class="line"></span><br><span class="line">    //计算obj需要使用的内存空间大小</span><br><span class="line">    size = cls-&gt;instanceSize(extraBytes);</span><br><span class="line">    if (outAllocatedSize) *outAllocatedSize = size;</span><br><span class="line"></span><br><span class="line">    //开辟内存空间</span><br><span class="line">    id obj;</span><br><span class="line">    if (zone) &#123;</span><br><span class="line">        obj = (id)malloc_zone_calloc((malloc_zone_t *)zone, 1, size);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        obj = (id)calloc(1, size);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //此时obj还没有和类绑定在一起，只是单纯的内存区域</span><br><span class="line">    if (slowpath(!obj)) &#123;</span><br><span class="line">        if (construct_flags &amp; OBJECT_CONSTRUCT_CALL_BADALLOC) &#123;</span><br><span class="line">            return _objc_callBadAllocHandler(cls);</span><br><span class="line">        &#125;</span><br><span class="line">        return nil;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    //obj和类绑定</span><br><span class="line">    if (!zone &amp;&amp; fast) &#123;</span><br><span class="line">        obj-&gt;initInstanceIsa(cls, hasCxxDtor);</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">        // Use raw pointer isa on the assumption that they might be</span><br><span class="line">        // doing something weird with the zone or RR.</span><br><span class="line">        obj-&gt;initIsa(cls);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    if (fastpath(!hasCxxCtor)) &#123;</span><br><span class="line">        return obj;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    construct_flags |= OBJECT_CONSTRUCT_FREE_ONFAILURE;</span><br><span class="line">    return object_cxxConstructFromClass(obj, cls, construct_flags);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，虽然我们从源码中看到调用顺序如上面所示，但是实际上的调用顺序要复杂的多。原因是：<strong>有一些方法被苹果hook住，做了方法交换，用于苹果自身的某些功能实现</strong>。例如：埋点、统计等。 </p>
+<p>主要关注<code>fixupMessageRef</code>这个方法：</p>
+<p><img src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bde7fb84532040daa93254f174c8f9a2~tplv-k3u1fbpfcp-watermark.image" alt="image.png"><br>可以看到，当<code>msg</code>的<code>sel</code>是<code>alloc</code>的时候，它的<code>imp</code>会被替换成<code>objc_alloc</code>。这就解释了，为什么我们调用的明明是<code>alloc</code>，但是通过汇编看到的却是<code>objc_alloc</code>。</p>
+<h2 id="四、对象大小的计算"><a href="#四、对象大小的计算" class="headerlink" title="四、对象大小的计算"></a>四、对象大小的计算</h2><p>在上面的<code>_class_createInstanceFromZone</code>方法中，有这么一句代码：<code>size = cls-&gt;instanceSize(extraBytes);</code>，它用来计算初始化当前实例变量需要占用多少内存空间。</p>
+<p>1、<code>instanceSize</code>  </p>
+<p>初始化当前类的实例对象，需要占用多少内存空间。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">inline size_t instanceSize(size_t extraBytes) const &#123;</span><br><span class="line">    if (fastpath(cache.hasFastInstanceSize(extraBytes))) &#123;</span><br><span class="line">        return cache.fastInstanceSize(extraBytes);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    //计算需要占用多少内存空间</span><br><span class="line">    size_t size = alignedInstanceSize() + extraBytes;</span><br><span class="line">    // CF requires all objects be at least 16 bytes.</span><br><span class="line">    if (size &lt; 16) size = 16;  </span><br><span class="line">    return size;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>if (size &lt; 16) size = 16;</code>：规定内存分配，最少分配16个字节。</p>
+<p>2、<code>alignedInstanceSize</code>  </p>
+<p>8字节对齐。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">// Class&#x27;s ivar size rounded up to a pointer-size boundary.</span><br><span class="line">uint32_t alignedInstanceSize() const &#123;</span><br><span class="line">    return word_align(unalignedInstanceSize());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注释写得很明白：类的ivar大小向上舍入到指针大小边界。意思是：类ivar的大小最小都是8个字节。<br><code>unalignedInstanceSize</code>：未做对齐的实例变量字节大小。</p>
+<p>3、<code>word_align</code></p>
+<p>8字节对齐的实现。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">static inline uint32_t word_align(uint32_t x) &#123;</span><br><span class="line">    return (x + WORD_MASK) &amp; ~WORD_MASK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#   define WORD_MASK 7UL</span><br></pre></td></tr></table></figure>
+
+<p>对<code>x</code>做8字节对齐：如果<code>x</code>是7，那么对齐之后就是8，如果输入的是12，那么对齐之后就是16。</p>
+<h2 id="五、字节对齐算法"><a href="#五、字节对齐算法" class="headerlink" title="五、字节对齐算法"></a>五、字节对齐算法</h2><p>我们详细剖析一下这句公式：<code>(x + WORD_MASK) &amp; ~WORD_MASK</code>。</p><br>假设我们要对<code>7</code>做8字节对齐。从宏定义中已知<code>WORD_MASK</code>是<code>7</code>，代入公式得：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(7 + 7) &amp; ~7</span><br></pre></td></tr></table></figure>
+<p>即：<code>14 &amp; ~7</code></p>
+<p>用二进制表示：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">   0000 1110</span><br><span class="line">&amp;  1111 1000</span><br><span class="line">------------ = 8</span><br><span class="line">   0000 1000</span><br></pre></td></tr></table></figure>
+<p>得到结果<code>8</code>。<br>这里最巧妙的就是<code>~7(1111 1000)</code>。任何数按位与<code>~7</code>之后，都会把低三位舍弃掉，这个数就会变成8的倍数了。<br>同理，后续如果我们需要对<code>x</code>16字节对齐，只需要 <code>(x + 15) &amp; ~15</code>就行了。</p>
+<p>除了<code>(x + 7) &amp; ~7</code>外，8字节对齐还有另外一种写法：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(x + 7) &gt;&gt; 3 &lt;&lt; 3</span><br></pre></td></tr></table></figure>
+<p>也是同样的原理，将低三位的数字进行舍弃。</p>
+<h3 id="为什么以8为倍数对齐？"><a href="#为什么以8为倍数对齐？" class="headerlink" title="为什么以8为倍数对齐？"></a>为什么以8为倍数对齐？</h3><p>有些同学可能会有疑问，为什么以8为倍数对齐，而不是以16、以32对齐呢？又或者为什么不以7为倍数对齐呢？</p>
+<p>这个问题其实可以拆分成两个小问题：</p>
+<p><strong>1、为什么要对齐？</strong>。<br>计算机的IO操作是非常消耗资源的。如果计算机每次读取数据时，都要根据数据类型的大小进行读取，那么对IO操作无疑雪上加霜。如果我们我们将内存空间分割成一个个小格子，将不同大小的数据都放进这些小格子，那么计算机读取数据时，只需要以格子为单位进行读取就行了，而不需要判断具体数据类型的大小。<strong>字节对齐的作用</strong>可以理解为：将数据放进这些固定大小的格子里，虽然有些格子的空间可能有些浪费，但是这将大大提高读取的速度，这就是典型的<strong>以空间换时间</strong>。  </p>
+<p><strong>2、为什么是以8字节对齐，而不是以16字节对齐？</strong><br>在<code>Arm64</code>中，数据的类型有<code>char</code>（1字节），<code>int</code>（4字节），<code>long long</code>（8字节）等等，这些数据类型最大也不过是8字节。而最关键的点在于，使用最频繁的指针，大小是8个字节。<strong>以8字节对齐，足以囊括所有基本数据类型</strong>。<br>因此，没必要以16或32为倍数，浪费额外的内存空间。</p>
+<h2 id="六、alloc-init与new的区别"><a href="#六、alloc-init与new的区别" class="headerlink" title="六、alloc init与new的区别"></a>六、alloc init与new的区别</h2><h3 id="alloc-init"><a href="#alloc-init" class="headerlink" title="alloc init"></a>alloc init</h3><p>从最开始的例子可以看到，我们对p1调用了两次init，但是对p1的内存地址没有任何影响。<br>init是不是啥也没做？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (id)init &#123;</span><br><span class="line">    return _objc_rootInit(self);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">id _objc_rootInit(id obj)</span><br><span class="line">&#123;</span><br><span class="line">    // In practice, it will be hard to rely on this function.</span><br><span class="line">    // Many classes do not properly chain -init calls.</span><br><span class="line">    return obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>确实啥都没有做，直接把本身返回。从官方英文注解可以看到，很多类根本就没有使用<code>init</code>，所以苹果没有在<code>init</code>里面做任何额外的工作。唯一的作用，可能就是給开发者重写，让开发者做额外的设置。</p>
+<h3 id="new"><a href="#new" class="headerlink" title="new"></a>new</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+ (id)new &#123;</span><br><span class="line">    return [callAlloc(self, false/*checkNil*/) init];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>new</code>方法的本质，等同于<code>alloc init</code>。所以，平时使用<code>new</code>和<code>alloc init</code>，本质上没有有什么差别，但更推荐<code>alloc init</code>的形式，扩展性、定制性更好。</p>
+<h2 id="七、总结"><a href="#七、总结" class="headerlink" title="七、总结"></a>七、总结</h2><p>本节主要讨论了：如何探索iOS的底层、alloc的主线流程、以及主线流程中出现的一些技术细节。除了我们已经讨论过的，还有大部分技术细节没有讲述到。探索<code>alloc</code>和<code>init</code>，只是万里长征的第一步，但是既然选择了iOS这条路，就坚定的走下去吧 ~</p>
+<blockquote>
+<p>道阻且长，行则将至，行而不辍，未来可期</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2021/12/02/Jenkins%20%E5%A6%82%E4%BD%95%E6%8C%87%E5%AE%9A%E6%9F%90%E4%B8%AA%E5%88%86%E6%94%AF%E8%BF%9B%E8%A1%8C%E6%9E%84%E5%BB%BA%EF%BC%9F/" rel="next" title="Jenkins 如何指定某个分支进行构建？">
+      Jenkins 如何指定某个分支进行构建？ <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%8E%E6%9C%80%E7%86%9F%E6%82%89%E7%9A%84%E4%BB%A3%E7%A0%81%E5%85%A5%E6%89%8B"><span class="nav-text">一、从最熟悉的代码入手</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%8E%A2%E7%B4%A2%E7%9A%84%E4%B8%89%E7%A7%8D%E6%80%9D%E8%B7%AF"><span class="nav-text">二、探索的三种思路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%A6%E5%8F%B7%E6%96%AD%E7%82%B9%E8%B0%83%E8%AF%95"><span class="nav-text">符号断点调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B1%87%E7%BC%96%E8%B7%9F%E8%B8%AA"><span class="nav-text">汇编跟踪</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%BA%90%E7%A0%81"><span class="nav-text">运行源码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81alloc%E7%9A%84%E4%B8%BB%E7%BA%BF%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B"><span class="nav-text">三、alloc的主线调用流程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%AF%B9%E8%B1%A1%E5%A4%A7%E5%B0%8F%E7%9A%84%E8%AE%A1%E7%AE%97"><span class="nav-text">四、对象大小的计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AD%97%E8%8A%82%E5%AF%B9%E9%BD%90%E7%AE%97%E6%B3%95"><span class="nav-text">五、字节对齐算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BB%A58%E4%B8%BA%E5%80%8D%E6%95%B0%E5%AF%B9%E9%BD%90%EF%BC%9F"><span class="nav-text">为什么以8为倍数对齐？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81alloc-init%E4%B8%8Enew%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">六、alloc init与new的区别</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#alloc-init"><span class="nav-text">alloc init</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#new"><span class="nav-text">new</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">七、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="T_Choues"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">T_Choues</p>
+  <div class="site-description" itemprop="description">蜗牛爬得再慢，也是在往前走呀🐌</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+  </nav>
+</div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">T_Choues</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+
+    <script async src="//dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+    <span id="busuanzi_container_site_pv">总访问量<span id="busuanzi_value_site_pv"></span>次</span>
+    <span class="post-meta-divider">|</span>
+    <span id="busuanzi_container_site_uv">总访客数<span id="busuanzi_value_site_uv"></span>人</span>
+    <span class="post-meta-divider">|</span>
+<!-- 不蒜子计数初始值纠正 -->
+<script>
+$(document).ready(function() {
+
+    var int = setInterval(fixCount, 50);  // 50ms周期检测函数
+    var countOffset = 20000;  // 初始化首次数据
+
+    function fixCount() {            
+       if (document.getElementById("busuanzi_container_site_pv").style.display != "none")
+        {
+            $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + countOffset); 
+            clearInterval(int);
+        }                  
+        if ($("#busuanzi_container_site_pv").css("display") != "none")
+        {
+            $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + countOffset); // 加上初始数据 
+            clearInterval(int); // 停止检测
+        }  
+    }
+       	
+});
+</script> 
+
+
+        
+<div class="busuanzi-count">
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+    <span class="post-meta-item" id="busuanzi_container_site_uv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv" style="display: none;">
+      <span class="post-meta-item-icon">
+        <i class="fa fa-eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
